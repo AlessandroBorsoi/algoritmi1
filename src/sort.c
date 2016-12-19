@@ -45,10 +45,7 @@ void upo_insertion_sort(void* base, size_t n, size_t size, upo_sort_comparator_t
 
 void upo_merge_sort(void* base, size_t n, size_t size, upo_sort_comparator_t cmp)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_merge_sort_rec(base, 0, n - 1, size, cmp);
 }
 
 void upo_quick_sort(void* base, size_t n, size_t size, upo_sort_comparator_t cmp)
@@ -70,4 +67,19 @@ void swap(void* v1, void* v2, size_t size)
         pc1[i] = pc2[i];
         pc2[i] = tmp;
     }
+}
+
+static void upo_merge_sort_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t mid;
+    if (lo >= hi) return;
+    mid = (lo + hi) / 2;
+    upo_merge_sort_rec(base, lo, mid, size, cmp);
+    upo_merge_sort_rec(base, mid + 1, hi, size, cmp);
+    upo_merge_sort_merge(base, lo, mid, hi, size, cmp);
+}
+
+static void upo_merge_sort_merge(void* base, size_t lo, size_t mid, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
+    
 }
