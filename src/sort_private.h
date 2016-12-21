@@ -59,6 +59,10 @@ static void upo_copy_array(void* dest, void* src, size_t lo, size_t hi, size_t s
 
 static void upo_copy_array_element(void* dest, void* src, size_t size);
 
-static void* upo_get_array_element(void* array, size_t index, size_t size)
+static void* upo_get_array_element(void* array, size_t index, size_t size);
+
+static void upo_quick_sort_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
+
+static size_t partition(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
 
 #endif /* UPO_SORT_PRIVATE_H */

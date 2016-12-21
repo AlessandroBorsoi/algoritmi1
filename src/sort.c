@@ -34,9 +34,12 @@ void upo_insertion_sort(void* base, size_t n, size_t size, upo_sort_comparator_t
     for (i = 1; i < n - 1; ++i)
     {
         j = i;
-        while (j > 0 && cmp(array + ((j - 1) * size), array + (j * size)))
+        while (j > 0 && cmp(upo_get_array_element(array, j - 1, size), upo_get_array_element(array, j, size)))
         {
-            upo_swap(array + ((j - 1) * size), array + (j * size), size);
+            upo_swap(
+                upo_get_array_element(array, j - 1, size), 
+                upo_get_array_element(array, j, size), 
+                size);
             --j;
         }
     }
@@ -49,10 +52,7 @@ void upo_merge_sort(void* base, size_t n, size_t size, upo_sort_comparator_t cmp
 
 void upo_quick_sort(void* base, size_t n, size_t size, upo_sort_comparator_t cmp)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_quick_sort_rec(base, 0, n - 1, size, cmp);
 }
 
 static void upo_swap(void* v1, void* v2, size_t size)
@@ -130,4 +130,36 @@ static void* upo_get_array_element(void* array, size_t index, size_t size)
 {
     char* ret = array;
     return ret + (index * size);
+}
+
+static void upo_quick_sort_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t pivot;
+    if (lo >= hi) return;
+    pivot = partition(base, lo, hi, size, cmp);
+    if (pivot > 0)
+        upo_quick_sort_rec(base, lo, pivot - 1, size, cmp);
+    upo_quick_sort_rec(base, pivot + 1, hi, size, cmp);
+}
+
+static size_t partition(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t p = lo;
+    size_t i = lo;
+    size_t j = hi + 1;
+    while (1)
+    {
+        do 
+        {
+            ++i;
+        } while (i >= hi || cmp(upo_get_array_element(base, p, size), upo_get_array_element(base, i, size)));
+        do 
+        {
+            --j;
+        } while (j <= lo || cmp(upo_get_array_element(base, j, size), upo_get_array_element(base, p, size)));
+        if (i >= j) break;
+        upo_swap(upo_get_array_element(base, i, size), upo_get_array_element(base, j, size), size);
+    }
+    upo_swap(upo_get_array_element(base, p, size), upo_get_array_element(base, j, size), size);
+    return j;
 }
