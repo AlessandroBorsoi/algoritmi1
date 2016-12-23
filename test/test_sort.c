@@ -97,7 +97,6 @@ void test_sort_algorithm(void (*sort)(void*,size_t,size_t,upo_sort_comparator_t)
     sort(da_clone, N, sizeof(double), double_comparator);
     for (i = 0; i < N; ++i)
     {
-        printf("[%f] ", da_clone[i]);
         ok &= !double_comparator(&da_clone[i], &expect_da[i]);
     }
     free(da_clone);
@@ -110,7 +109,6 @@ void test_sort_algorithm(void (*sort)(void*,size_t,size_t,upo_sort_comparator_t)
     sort(sa_clone, N, sizeof(char*), string_comparator);
     for (i = 0; i < N; ++i)
     {
-        printf("[%s] ", sa_clone[i]);
         ok &= !string_comparator(&sa_clone[i], &expect_sa[i]);
     }
     free(sa_clone);

@@ -172,11 +172,11 @@ static size_t partition(void* base, size_t lo, size_t hi, size_t size, upo_sort_
         do 
         {
             ++i;
-        } while (i >= hi || cmp(upo_get_array_element(base, i, size), upo_get_array_element(base, p, size)) >= 0);
+        } while (!(i >= hi) && !(cmp(upo_get_array_element(base, i, size), upo_get_array_element(base, p, size)) >= 0));
         do 
         {
             --j;
-        } while (j <= lo || cmp(upo_get_array_element(base, j, size), upo_get_array_element(base, p, size)) <= 0);
+        } while (!(j <= lo) && !(cmp(upo_get_array_element(base, j, size), upo_get_array_element(base, p, size)) <= 0));
         if (i >= j) break;
         upo_swap(upo_get_array_element(base, i, size), upo_get_array_element(base, j, size), size);
     }
