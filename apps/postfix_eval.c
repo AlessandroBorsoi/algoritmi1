@@ -62,12 +62,13 @@ long int eval(char op, long int op1, long int op2)
         return op1 % op2;
     if (op == '^')
         return pow(op1, op2);
+    return op1 + op2;
 }
 
 int eval_postfix(const char* expr, long* res)
 {
     upo_stack_t stack;
-    char* data = expr;
+    const char* data = expr;
     long int* value;
     long int tmpRes, op1, op2;
     if (expr == NULL) return 0;

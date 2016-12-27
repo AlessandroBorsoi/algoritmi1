@@ -83,50 +83,69 @@ static int parse_entry(const char* str, entry_t* entry);
 
 int by_artist_comparator(const void* a, const void* b)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    const entry_t* aa = a;
+    const entry_t* bb = b;
+    return strcmp(aa->artist, bb->artist);
 }
 
 int by_album_comparator(const void* a, const void* b)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    const entry_t* aa = a;
+    const entry_t* bb = b;
+    return strcmp(aa->album, bb->album);
 }
 
 int by_year_comparator(const void* a, const void* b)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    const entry_t* aa = a;
+    const entry_t* bb = b;
+    return (aa->year > bb->year) - (aa->year < bb->year);
 }
 
 int by_track_number_comparator(const void* a, const void* b)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    const entry_t* aa = a;
+    const entry_t* bb = b;
+    return (aa->track_num > bb->track_num) - (aa->track_num < bb->track_num);
 }
 
 int by_track_title_comparator(const void* a, const void* b)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    const entry_t* aa = a;
+    const entry_t* bb = b;
+    return strcmp(aa->track_title, bb->track_title);
 }
 
 void playlist_sort(playlist_t playlist, playlist_sorting_criterion_t order_by)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_sort_comparator_t cmp;
+    switch (order_by)
+    {
+        case playlist_by_artist_sorting_criterion:
+        {
+            cmp = by_artist_comparator;
+        } break;
+        case playlist_by_album_sorting_criterion:
+        {
+            cmp = by_album_comparator;
+        } break;
+        case playlist_by_year_sorting_criterion:
+        {
+            cmp = by_year_comparator;
+        } break;
+        case playlist_by_track_number_sorting_criterion:
+        {
+            cmp = by_track_number_comparator;
+        } break;
+        case playlist_by_track_title_sorting_criterion:
+        {
+            cmp = by_track_title_comparator;
+        } break;
+        default: {
+            cmp = NULL;
+        }
+    }
+    upo_quick_sort(playlist->entries, playlist->size, sizeof(entry_t), cmp);
 }
 
 
