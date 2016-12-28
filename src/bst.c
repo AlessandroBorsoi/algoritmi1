@@ -237,14 +237,14 @@ static upo_bst_node_t* upo_bst_delete_impl(upo_bst_node_t* root, const void* key
 
 static upo_bst_node_t* upo_bst_delete_2c_impl(upo_bst_node_t* root, const void* key, int destroy_data, upo_bst_comparator_t key_cmp)
 {
-    upo_bst_node_t* m = upo_bst_max_impl(root);
+    upo_bst_node_t* m = upo_bst_max_node_impl(root);
     root->key = m->key;
     root->value = m->value;
     root->left =  upo_bst_delete_impl(root->left, key, destroy_data, key_cmp);
     return root;
 }
 
-static upo_bst_node_t* upo_bst_max_impl(upo_bst_node_t* root)
+static upo_bst_node_t* upo_bst_max_node_impl(upo_bst_node_t* root)
 {
     if (root == NULL)
     {
@@ -252,7 +252,7 @@ static upo_bst_node_t* upo_bst_max_impl(upo_bst_node_t* root)
     }
     else if (root->right != NULL)
     {
-        return upo_bst_max_impl(root->right);
+        return upo_bst_max_node_impl(root->right);
     }
     else
     {
@@ -322,18 +322,16 @@ static void upo_bst_traverse_in_order_impl(upo_bst_node_t* root, upo_bst_visitor
 
 void* upo_bst_min(const upo_bst_t tree)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (tree == NULL)
+        return NULL;
+    return upo_bst_min_impl(tree->root);
 }
 
 void* upo_bst_max(const upo_bst_t tree)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (tree == NULL)
+        return NULL;
+    return upo_bst_max_impl(tree->root);
 }
 
 void upo_bst_delete_min(upo_bst_t tree, int destroy_data)
@@ -392,6 +390,37 @@ int upo_bst_is_bst(const upo_bst_t tree, const void* min_key, const void* max_ke
     abort();
 }
 
+static void* upo_bst_min_impl(upo_bst_node_t* root)
+{
+    if (root == NULL)
+    {
+        return NULL;
+    }
+    else if (root->left != NULL)
+    {
+        return upo_bst_min_impl(root->left);
+    }
+    else
+    {
+        return root->key;
+    }
+}
+
+static void* upo_bst_max_impl(upo_bst_node_t* root)
+{
+    if (root == NULL)
+    {
+        return NULL;
+    }
+    else if (root->right != NULL)
+    {
+        return upo_bst_max_impl(root->right);
+    }
+    else
+    {
+        return root->key;
+    }
+}
 
 /**** EXERCISE #2 - END of EXTRA OPERATIONS ****/
 

@@ -74,7 +74,7 @@ static upo_bst_node_t* upo_bst_delete_impl(upo_bst_node_t* root, const void* key
 
 static upo_bst_node_t* upo_bst_delete_2c_impl(upo_bst_node_t* root, const void* key, int destroy_data, upo_bst_comparator_t key_cmp);
 
-static upo_bst_node_t* upo_bst_max_impl(upo_bst_node_t* root);
+static upo_bst_node_t* upo_bst_max_node_impl(upo_bst_node_t* root);
 
 static upo_bst_node_t* upo_bst_delete_1c_impl(upo_bst_node_t* root, int destroy_data);
 
@@ -87,5 +87,9 @@ static int upo_bst_is_leaf_impl(upo_bst_node_t* root);
 static size_t upo_bst_max_size(size_t v1, size_t v2);
 
 static void upo_bst_traverse_in_order_impl(upo_bst_node_t* root, upo_bst_visitor_t visit, void* visit_arg);
+
+static void* upo_bst_min_impl(upo_bst_node_t* root);
+
+static void* upo_bst_max_impl(upo_bst_node_t* root);
 
 #endif /* UPO_BST_PRIVATE_H */
