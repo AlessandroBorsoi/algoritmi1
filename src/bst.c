@@ -336,18 +336,12 @@ void* upo_bst_max(const upo_bst_t tree)
 
 void upo_bst_delete_min(upo_bst_t tree, int destroy_data)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_bst_delete(tree, upo_bst_min(tree), destroy_data);
 }
 
 void upo_bst_delete_max(upo_bst_t tree, int destroy_data)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_bst_delete(tree, upo_bst_max(tree), destroy_data);
 }
 
 void* upo_bst_floor(const upo_bst_t tree, const void* key)
