@@ -64,5 +64,28 @@ struct upo_bst_s
  */
 static void upo_bst_clear_impl(upo_bst_node_t*, int destroy_data);
 
+static upo_bst_node_t* upo_bst_put_impl(upo_bst_node_t* root, void* key, void* value, void* valueOld, upo_bst_comparator_t key_cmp);
+
+static upo_bst_node_t* upo_bst_insert_impl(upo_bst_node_t* root, void* key, void* value, void* valueOld, upo_bst_comparator_t key_cmp);
+
+static upo_bst_node_t* upo_bst_get_impl(upo_bst_node_t* root, const void* key, upo_bst_comparator_t key_cmp);
+
+static upo_bst_node_t* upo_bst_delete_impl(upo_bst_node_t* root, const void* key, int destroy_data, upo_bst_comparator_t key_cmp);
+
+static upo_bst_node_t* upo_bst_delete_2c_impl(upo_bst_node_t* root, const void* key, int destroy_data, upo_bst_comparator_t key_cmp);
+
+static upo_bst_node_t* upo_bst_max_impl(upo_bst_node_t* root);
+
+static upo_bst_node_t* upo_bst_delete_1c_impl(upo_bst_node_t* root, int destroy_data);
+
+static size_t upo_bst_size_impl(upo_bst_node_t* root);
+
+static size_t upo_bst_height_impl(upo_bst_node_t* root);
+
+static int upo_bst_is_leaf_impl(upo_bst_node_t* root);
+
+static size_t upo_bst_max_size(size_t v1, size_t v2);
+
+static void upo_bst_traverse_in_order_impl(upo_bst_node_t* root, upo_bst_visitor_t visit, void* visit_arg);
 
 #endif /* UPO_BST_PRIVATE_H */
