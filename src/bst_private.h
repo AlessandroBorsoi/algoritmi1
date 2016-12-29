@@ -109,4 +109,6 @@ struct upo_bst_keys_range_s {
     upo_bst_key_list_t key_list;
 };
 
+static void upo_bst_is_bst_impl(upo_bst_node_t* root, const void* min_key, const void* max_key, upo_bst_comparator_t key_cmp, int* is_bst);
+
 #endif /* UPO_BST_PRIVATE_H */
