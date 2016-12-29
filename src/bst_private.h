@@ -92,4 +92,8 @@ static void* upo_bst_min_impl(upo_bst_node_t* root);
 
 static void* upo_bst_max_impl(upo_bst_node_t* root);
 
+static upo_bst_node_t* upo_bst_floor_impl(upo_bst_node_t* root, const void* key, upo_bst_comparator_t key_cmp);
+
+static upo_bst_node_t* upo_bst_ceiling_impl(upo_bst_node_t* root, const void* key, upo_bst_comparator_t key_cmp);
+
 #endif /* UPO_BST_PRIVATE_H */

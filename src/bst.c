@@ -346,18 +346,18 @@ void upo_bst_delete_max(upo_bst_t tree, int destroy_data)
 
 void* upo_bst_floor(const upo_bst_t tree, const void* key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_bst_node_t* floor = upo_bst_floor_impl(tree->root, key, tree->key_cmp);
+    if (floor != NULL)
+        return floor->key;
+    return NULL;
 }
 
 void* upo_bst_ceiling(const upo_bst_t tree, const void* key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_bst_node_t* ceiling = upo_bst_ceiling_impl(tree->root, key, tree->key_cmp);
+    if (ceiling != NULL)
+        return ceiling->key;
+    return NULL;
 }
 
 upo_bst_key_list_t upo_bst_keys_range(const upo_bst_t tree, const void* low_key, const void* high_key)
@@ -414,6 +414,36 @@ static void* upo_bst_max_impl(upo_bst_node_t* root)
     {
         return root->key;
     }
+}
+
+static upo_bst_node_t* upo_bst_floor_impl(upo_bst_node_t* root, const void* key, upo_bst_comparator_t key_cmp)
+{
+    upo_bst_node_t* floor;
+    if (root == NULL)
+        return NULL;
+    if (key_cmp(key, root->key) == 0)
+        return root;
+    if (key_cmp(key, root->key) < 0)
+        return upo_bst_floor_impl(root->left, key, key_cmp);
+    floor = upo_bst_floor_impl(root->right, key, key_cmp);
+    if (floor != NULL && key_cmp(key, floor->key) >= 0)
+        return floor;
+    return root;
+}
+
+static upo_bst_node_t* upo_bst_ceiling_impl(upo_bst_node_t* root, const void* key, upo_bst_comparator_t key_cmp)
+{
+    upo_bst_node_t* ceil;
+    if (root == NULL)
+        return NULL;
+    if (key_cmp(key, root->key) == 0)
+        return root;
+    if (key_cmp(key, root->key) > 0)
+        return upo_bst_ceiling_impl(root->right, key, key_cmp);
+    ceil = upo_bst_ceiling_impl(root->left, key, key_cmp);
+    if (ceil != NULL && key_cmp(key, ceil->key) <= 0)
+        return ceil;
+    return root;
 }
 
 /**** EXERCISE #2 - END of EXTRA OPERATIONS ****/

@@ -393,7 +393,6 @@ void test_floor_ceiling()
     }
 
     /* Search */
-
     ref_key = min_key-1;
     key = upo_bst_floor(bst, &ref_key);
     assert( key == NULL );
