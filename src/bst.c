@@ -448,21 +448,21 @@ static upo_bst_node_t* upo_bst_ceiling_impl(upo_bst_node_t* root, const void* ke
     return root;
 }
 
-static void upo_bst_keys_range_impl(void* key, void* value, void* data_args)
+void upo_bst_keys_range_impl(void* key, void* value, void* data_args)
 {
     upo_bst_keys_range_t* data = data_args;
     upo_bst_comparator_t key_cmp = data->key_cmp;
     if (key_cmp(key, data->low_key) >= 0 && key_cmp(key, data->high_key) <= 0)
-        upo_bst_keys_impl(key, value, data->key_list);
+        upo_bst_keys_impl(key, value, &(data->key_list));
 }
 
-static void upo_bst_keys_impl(void* key, void* value, void* key_list)
+void upo_bst_keys_impl(void* key, void* value, void* key_list)
 {
     upo_bst_key_list_t* list = key_list;
     upo_bst_key_list_node_t* node = malloc(sizeof(upo_bst_key_list_node_t));
     node->key = key;
     node->next = *list;
-    list = &node;
+    *list = node;
 }
 
 /**** EXERCISE #2 - END of EXTRA OPERATIONS ****/

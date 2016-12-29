@@ -96,9 +96,9 @@ static upo_bst_node_t* upo_bst_floor_impl(upo_bst_node_t* root, const void* key,
 
 static upo_bst_node_t* upo_bst_ceiling_impl(upo_bst_node_t* root, const void* key, upo_bst_comparator_t key_cmp);
 
-static void upo_bst_keys_impl(void* key, void* value, void* key_list);
+void upo_bst_keys_range_impl(void* key, void* value, void* data_args);
 
-static void upo_bst_keys_range_impl(void* key, void* value, void* data_args);
+void upo_bst_keys_impl(void* key, void* value, void* key_list);
 
 typedef struct upo_bst_keys_range_s upo_bst_keys_range_t;
 
