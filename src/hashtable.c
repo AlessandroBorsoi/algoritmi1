@@ -116,7 +116,7 @@ void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void* key, void* value)
 {
     void* old_value = NULL;
     upo_ht_hasher_t hasher = ht->key_hash;
-    size_t hash = hasher(key, ht->capacity);
+    size_t hash = hasher(key, upo_ht_sepchain_capacity(ht));
     upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
     upo_ht_comparator_t key_cmp = ht->key_cmp;
     while (n != NULL && key_cmp(key, n->key) != 0)
@@ -141,7 +141,7 @@ void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void* key, void* value)
 void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void* key, void* value)
 {
     upo_ht_hasher_t hasher = ht->key_hash;
-    size_t hash = hasher(key, ht->capacity);
+    size_t hash = hasher(key, upo_ht_sepchain_capacity(ht));
     upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
     upo_ht_comparator_t key_cmp = ht->key_cmp;
     while (n != NULL && key_cmp(key, n->key) != 0)
@@ -160,7 +160,7 @@ void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void* key, void* value)
 void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void* key)
 {
     upo_ht_hasher_t hasher = ht->key_hash;
-    size_t hash = hasher(key, ht->capacity);
+    size_t hash = hasher(key, upo_ht_sepchain_capacity(ht));
     upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
     upo_ht_comparator_t key_cmp = ht->key_cmp;
     while (n != NULL && key_cmp(key, n->key) != 0)
@@ -172,15 +172,13 @@ void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void* key)
 
 int upo_ht_sepchain_contains(const upo_ht_sepchain_t ht, const void* key)
 {
-    if (upo_ht_sepchain_get(ht, key) != NULL)
-        return 1;
-    return 0;
+    return (upo_ht_sepchain_get(ht, key) != NULL) ? 1 : 0;
 }
 
 void upo_ht_sepchain_delete(upo_ht_sepchain_t ht, const void* key, int destroy_data)
 {
     upo_ht_hasher_t hasher = ht->key_hash;
-    size_t hash = hasher(key, ht->capacity);
+    size_t hash = hasher(key, upo_ht_sepchain_capacity(ht));
     upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
     upo_ht_sepchain_list_node_t* p = NULL;
     upo_ht_comparator_t key_cmp = ht->key_cmp;
@@ -203,9 +201,7 @@ void upo_ht_sepchain_delete(upo_ht_sepchain_t ht, const void* key, int destroy_d
 
 size_t upo_ht_sepchain_size(const upo_ht_sepchain_t ht)
 {
-    if (ht != NULL)
-        return ht->size;
-    return 0;
+    return (ht != NULL) ? ht->size : 0;
 }
 
 int upo_ht_sepchain_is_empty(const upo_ht_sepchain_t ht)
@@ -358,54 +354,123 @@ void upo_ht_linprob_clear(upo_ht_linprob_t ht, int destroy_data)
 
 void* upo_ht_linprob_put(upo_ht_linprob_t ht, void* key, void* value)
 {
+    upo_ht_hasher_t hasher;
+    size_t hash;
+    size_t hash_tombstone;
+    upo_ht_comparator_t key_cmp;
+    int found_tombstone;
     void* old_value = NULL;
-
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
-
+    if (upo_ht_linprob_load_factor(ht) >= 0.5)
+        upo_ht_linprob_resize(ht, upo_ht_linprob_capacity(ht) * 2);
+    hasher = ht->key_hash;
+    hash = hasher(key, upo_ht_linprob_capacity(ht));
+    key_cmp = ht->key_cmp;
+    found_tombstone = 0;
+    while ((ht->slots[hash].key != NULL && key_cmp(key, ht->slots[hash].key) != 0) ||
+            ht->slots[hash].tombstone)
+    {
+        if (ht->slots[hash].tombstone && !found_tombstone)
+        {
+            found_tombstone = 1;
+            hash_tombstone = hash;
+        }
+        hash = (hash + 1) % upo_ht_linprob_capacity(ht);
+    }
+    if (ht->slots[hash].key == NULL)
+    {
+        if (found_tombstone)
+            hash = hash_tombstone;
+        ht->slots[hash].key = key;
+        ht->slots[hash].value = value;
+        ht->slots[hash].tombstone = 0;
+        ht->size += 1;
+    }
+    else
+    {
+        old_value = ht->slots[hash].value;
+        ht->slots[hash].value = value;
+    }
     return old_value;
 }
 
 void upo_ht_linprob_insert(upo_ht_linprob_t ht, void* key, void* value)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_hasher_t hasher;
+    size_t hash;
+    size_t hash_tombstone;
+    upo_ht_comparator_t key_cmp;
+    int found_tombstone;
+    if (upo_ht_linprob_load_factor(ht) >= 0.5)
+        upo_ht_linprob_resize(ht, upo_ht_linprob_capacity(ht) * 2);
+    hasher = ht->key_hash;
+    hash = hasher(key, upo_ht_linprob_capacity(ht));
+    key_cmp = ht->key_cmp;
+    found_tombstone = 0;
+    while ((ht->slots[hash].key != NULL && key_cmp(key, ht->slots[hash].key) != 0) ||
+            ht->slots[hash].tombstone)
+    {
+        if (ht->slots[hash].tombstone && !found_tombstone)
+        {
+            found_tombstone = 1;
+            hash_tombstone = hash;
+        }
+        hash = (hash + 1) % upo_ht_linprob_capacity(ht);
+    }
+    if (ht->slots[hash].key == NULL)
+    {
+        if (found_tombstone)
+            hash = hash_tombstone;
+        ht->slots[hash].key = key;
+        ht->slots[hash].value = value;
+        ht->slots[hash].tombstone = 0;
+        ht->size += 1;
+    }
 }
 
 void* upo_ht_linprob_get(const upo_ht_linprob_t ht, const void* key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_hasher_t hasher = ht->key_hash;
+    size_t hash = hasher(key, upo_ht_linprob_capacity(ht));
+    upo_ht_comparator_t key_cmp = ht->key_cmp;
+    while ((ht->slots[hash].key != NULL && key_cmp(key, ht->slots[hash].key) != 0) ||
+            ht->slots[hash].tombstone)
+    {
+        hash = (hash + 1) % upo_ht_linprob_capacity(ht);
+    }
+    return (ht->slots[hash].key != NULL) ? ht->slots[hash].value : NULL;
 }
 
 int upo_ht_linprob_contains(const upo_ht_linprob_t ht, const void* key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    return (upo_ht_linprob_get(ht, key) != NULL) ? 1 : 0;
 }
 
 void upo_ht_linprob_delete(upo_ht_linprob_t ht, const void* key, int destroy_data)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_hasher_t hasher = ht->key_hash;
+    size_t hash = hasher(key, upo_ht_linprob_capacity(ht));
+    upo_ht_comparator_t key_cmp = ht->key_cmp;
+    while ((ht->slots[hash].key != NULL && key_cmp(key, ht->slots[hash].key) != 0) ||
+            ht->slots[hash].tombstone)
+    {
+        hash = (hash + 1) % upo_ht_linprob_capacity(ht);
+    }
+    if (ht->slots[hash].key != NULL)
+    {
+        ht->slots[hash].key = NULL;
+        ht->slots[hash].value = NULL;
+        ht->slots[hash].tombstone = 1;
+        ht->size -= 1;
+        if (destroy_data)
+        {}
+        if (upo_ht_linprob_load_factor(ht) <= 0.125)
+            upo_ht_linprob_resize(ht, upo_ht_linprob_capacity(ht) / 2);
+    }
 }
 
 size_t upo_ht_linprob_size(const upo_ht_linprob_t ht)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    return (ht != NULL) ? ht->size : 0;
 }
 
 int upo_ht_linprob_is_empty(const upo_ht_linprob_t ht)
