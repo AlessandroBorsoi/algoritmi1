@@ -497,34 +497,82 @@ double upo_ht_linprob_load_factor(const upo_ht_linprob_t ht)
 
 upo_ht_key_list_t upo_ht_sepchain_keys(const upo_ht_sepchain_t ht)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_key_list_t key_list = NULL;
+    if (ht != NULL && ht->slots != NULL)
+    {
+        size_t i = 0;
+        for (i = 0; i < ht->capacity; ++i)
+        {
+            upo_ht_sepchain_list_node_t* list = NULL;
+            list = ht->slots[i].head;
+            while (list != NULL)
+            {
+                upo_ht_key_list_node_t* key_node = malloc(sizeof(upo_ht_key_list_node_t));
+                key_node->key = list->key;
+                key_node->next = key_list;
+                key_list = key_node;
+                list = list->next;
+            }
+        }
+    }
+    return key_list;
 }
 
 void upo_ht_sepchain_traverse(const upo_ht_sepchain_t ht, upo_ht_visitor_t visit, void* visit_arg)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht != NULL && ht->slots != NULL)
+    {
+        size_t i = 0;
+        for (i = 0; i < ht->capacity; ++i)
+        {
+            upo_ht_sepchain_list_node_t* list = NULL;
+            list = ht->slots[i].head;
+            while (list != NULL)
+            {
+                visit(list->key, list->value, visit_arg);
+                list = list->next;
+            }
+        }
+    }
 }
 
 upo_ht_key_list_t upo_ht_linprob_keys(const upo_ht_linprob_t ht)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_key_list_t key_list = NULL;
+    if (ht != NULL && ht->slots != NULL)
+    {
+        size_t i = 0;
+        for (i = 0; i < ht->capacity; ++i)
+        {
+            upo_ht_linprob_slot_t slot;
+            slot = ht->slots[i];
+            if (slot.key != NULL)
+            {
+                upo_ht_key_list_node_t* key_node = malloc(sizeof(upo_ht_key_list_node_t));
+                key_node->key = slot.key;
+                key_node->next = key_list;
+                key_list = key_node;
+            }
+        }
+    }
+    return key_list;
 }
 
 void upo_ht_linprob_traverse(const upo_ht_linprob_t ht, upo_ht_visitor_t visit, void* visit_arg)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht != NULL && ht->slots != NULL)
+    {
+        size_t i = 0;
+        for (i = 0; i < ht->capacity; ++i)
+        {
+            upo_ht_linprob_slot_t slot;
+            slot = ht->slots[i];
+            if (slot.key != NULL)
+            {
+                visit(slot.key, slot.value, visit_arg);
+            }
+        }
+    }
 }
 
 
