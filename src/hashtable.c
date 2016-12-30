@@ -115,53 +115,95 @@ void upo_ht_sepchain_clear(upo_ht_sepchain_t ht, int destroy_data)
 void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void* key, void* value)
 {
     void* old_value = NULL;
-
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
-
+    upo_ht_hasher_t hasher = ht->key_hash;
+    size_t hash = hasher(key, ht->capacity);
+    upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
+    upo_ht_comparator_t key_cmp = ht->key_cmp;
+    while (n != NULL && key_cmp(key, n->key) != 0)
+        n = n->next;
+    if (n == NULL)
+    {
+        n = malloc(sizeof(upo_ht_sepchain_list_node_t));
+        n->key = key;
+        n->value = value;
+        n->next = ht->slots[hash].head;
+        ht->slots[hash].head = n;
+        ht->size += 1;
+    }
+    else
+    {
+        old_value = n->value;
+        n->value = value;
+    }
     return old_value;
 }
 
 void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void* key, void* value)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_hasher_t hasher = ht->key_hash;
+    size_t hash = hasher(key, ht->capacity);
+    upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
+    upo_ht_comparator_t key_cmp = ht->key_cmp;
+    while (n != NULL && key_cmp(key, n->key) != 0)
+        n = n->next;
+    if (n == NULL)
+    {
+        n = malloc(sizeof(upo_ht_sepchain_list_node_t));
+        n->key = key;
+        n->value = value;
+        n->next = ht->slots[hash].head;
+        ht->slots[hash].head = n;
+        ht->size += 1;
+    }
 }
 
 void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void* key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_hasher_t hasher = ht->key_hash;
+    size_t hash = hasher(key, ht->capacity);
+    upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
+    upo_ht_comparator_t key_cmp = ht->key_cmp;
+    while (n != NULL && key_cmp(key, n->key) != 0)
+        n = n->next;
+    if (n != NULL)
+        return n->value;
+    return NULL;
 }
 
 int upo_ht_sepchain_contains(const upo_ht_sepchain_t ht, const void* key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (upo_ht_sepchain_get(ht, key) != NULL)
+        return 1;
+    return 0;
 }
 
 void upo_ht_sepchain_delete(upo_ht_sepchain_t ht, const void* key, int destroy_data)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    upo_ht_hasher_t hasher = ht->key_hash;
+    size_t hash = hasher(key, ht->capacity);
+    upo_ht_sepchain_list_node_t* n = ht->slots[hash].head;
+    upo_ht_sepchain_list_node_t* p = NULL;
+    upo_ht_comparator_t key_cmp = ht->key_cmp;
+    while (n != NULL && key_cmp(key, n->key) != 0)
+    {
+        p = n;
+        n = n->next;
+    }
+    if (n != NULL)
+    {
+        if (p == NULL)
+            ht->slots[hash].head = n->next;
+        else
+            p->next = n->next;
+        if (destroy_data)
+            free(n);
+        ht->size -= 1;
+    }
 }
 
 size_t upo_ht_sepchain_size(const upo_ht_sepchain_t ht)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    return ht->size;
 }
 
 int upo_ht_sepchain_is_empty(const upo_ht_sepchain_t ht)
