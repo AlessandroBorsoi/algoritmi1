@@ -33,19 +33,13 @@
 
 static int str_compare(const void* a, const void* b);
 static int int_compare(const void* a, const void* b);
-/*
-static void int_key_value_print(void* key, void* value, void* info);
-*/
-static void count_key_visit(void* key, void* value, void* info);
 
 static void test_create_destroy();
 static void test_put_get_delete();
-static void test_insert();
+static void test_insert_get_delete();
 static void test_clear();
 static void test_empty();
 static void test_size();
-static void test_keys();
-static void test_traverse();
 static void test_hash_funcs();
 static void test_null();
 
@@ -64,34 +58,6 @@ int int_compare(const void* a, const void* b)
     const int* bb = b;
 
     return (*aa > *bb) - (*aa < *bb);
-}
-
-/*
-void int_key_value_print(void* key, void* value, void* info)
-{
-    FILE* stream = info;
-    int* ikey = key;
-    int* ivalue = value;
-
-    if (ikey != NULL && ivalue != NULL && stream != NULL)
-    {
-        fprintf(stream, "Key: %d -> Value: %d\n", *ikey, *ivalue);
-    }
-}
-*/
-
-void count_key_visit(void* key, void* value, void* info)
-{
-    size_t* counter = info;
-
-    assert( info != NULL );
-
-    (void) value;
-
-    if (key != NULL)
-    {
-        *counter += 1;
-    }
 }
 
 void test_create_destroy()
@@ -285,7 +251,7 @@ void test_put_get_delete()
 
     upo_ht_sepchain_destroy(ht, 0);
 
-    /* HT: mix with interleaved put/get/delete (useful to test tombstones) */
+    /* HT: mix with interleaved put/get/delete */
 
     ht = upo_ht_sepchain_create(UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
 
@@ -405,9 +371,34 @@ void test_put_get_delete()
     }
 
     upo_ht_sepchain_destroy(ht, 0);
+
+    /* HT: duplicates */
+    {
+        const size_t M = 8;
+        int key1 = 0;
+        int key2 = M+1; /* this key will collide with key3, see below */
+        int key3 = 1;
+        int value = 1;
+
+        ht = upo_ht_sepchain_create(M, upo_ht_hash_int_div, int_compare);
+
+        assert( ht != NULL );
+
+        upo_ht_sepchain_put(ht, &key1, &value);
+
+        upo_ht_sepchain_put(ht, &key2, &value);
+
+        upo_ht_sepchain_put(ht, &key3, &value);
+
+        upo_ht_sepchain_delete(ht, &key2, 0);
+
+        upo_ht_sepchain_put(ht, &key3, &value);
+
+        upo_ht_sepchain_destroy(ht, 0);
+    }
 }
 
-void test_insert()
+void test_insert_get_delete()
 {
     int keys1[] = {0,1,2,3,4,5,6,7,8,9};
     int keys2[] = {0,10,20,30,40,50,60,70,80,90};
@@ -580,6 +571,152 @@ void test_insert()
     }
 
     upo_ht_sepchain_destroy(ht, 0);
+
+    /* HT: mix with interleaved insert/get/delete */
+
+    ht = upo_ht_sepchain_create(UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
+
+    assert( ht != NULL );
+
+    n = sizeof keys3/sizeof keys3[0];
+    /* Insertion */
+    for (i = n/4; i <= 3*n/4; ++i)
+    {
+        upo_ht_sepchain_insert(ht, &keys3[i], &values[i]);
+    }
+    /* Search */
+    for (i = 0; i <= n/2; ++i)
+    {
+        int* value = NULL;
+
+        value = upo_ht_sepchain_get(ht, &keys3[i]);
+
+        if (i >= n/4 && i <= 3*n/4)
+        {
+            assert( value != NULL );
+            assert( *value == values[i] );
+        }
+        else
+        {
+            assert( value == NULL );
+        }
+    }
+    /* Removal */
+    for (i = n/2; i < n; ++i)
+    {
+        upo_ht_sepchain_delete(ht, &keys3[i], 0);
+    }
+    /* Insertion */
+    for (i = n/2; i < n; ++i)
+    {
+        upo_ht_sepchain_insert(ht, &keys3[i], &values[i]);
+    }
+    /* Search */
+    for (i = n/4; i <= 3*n/4; ++i)
+    {
+        int* value = NULL;
+
+        value = upo_ht_sepchain_get(ht, &keys3[i]);
+
+        if (i >= n/4 && i < n)
+        {
+            assert( value != NULL );
+            assert( *value == values[i] );
+        }
+        else
+        {
+            assert( value == NULL );
+        }
+    }
+    /* Removal */
+    for (i = 0; i <= n/2; ++i)
+    {
+        upo_ht_sepchain_delete(ht, &keys3[i], 0);
+    }
+    /* Search */
+    for (i = 0; i <= n/2; ++i)
+    {
+        int* value = NULL;
+
+        value = upo_ht_sepchain_get(ht, &keys3[i]);
+
+        assert( value == NULL );
+    }
+    /* Insertion */
+    for (i = 0; i < n; ++i)
+    {
+        upo_ht_sepchain_insert(ht, &keys3[i], &values[i]);
+    }
+    /* Removal */
+    for (i = 0; i <= n/2; ++i)
+    {
+        upo_ht_sepchain_delete(ht, &keys3[i], 0);
+    }
+    /* Search */
+    for (i = 0; i <= n/2; ++i)
+    {
+        int* value = NULL;
+
+        value = upo_ht_sepchain_get(ht, &keys3[i]);
+
+        assert( value == NULL );
+    }
+    /* Insertion */
+    for (i = 0; i < n; ++i)
+    {
+        upo_ht_sepchain_insert(ht, &keys3[i], &values[i]);
+    }
+    /* Search */
+    for (i = 0; i < n; ++i)
+    {
+        int* value = NULL;
+
+        value = upo_ht_sepchain_get(ht, &keys3[i]);
+
+        assert( value != NULL );
+        assert( *value == values[i] );
+    }
+    /* Removal */
+    for (i = 0; i < n; ++i)
+    {
+        upo_ht_sepchain_delete(ht, &keys3[i], 0);
+    }
+    /* Search */
+    for (i = 0; i < n; ++i)
+    {
+        int* value = NULL;
+
+        value = upo_ht_sepchain_get(ht, &keys3[i]);
+
+        assert( value == NULL );
+    }
+
+    upo_ht_sepchain_destroy(ht, 0);
+
+    /* HT: duplicates */
+    {
+        const size_t M = 8;
+        int key1 = 0;
+        int key2 = M+1; /* this key will collide with key3, see below */
+        int key3 = 1;
+        int value = 1;
+
+        ht = upo_ht_sepchain_create(M, upo_ht_hash_int_div, int_compare);
+
+        assert( ht != NULL );
+
+        upo_ht_sepchain_insert(ht, &key1, &value);
+
+        upo_ht_sepchain_insert(ht, &key2, &value);
+
+        upo_ht_sepchain_insert(ht, &key3, &value);
+
+        upo_ht_sepchain_delete(ht, &key2, 0);
+
+        upo_ht_sepchain_insert(ht, &key3, &value);
+
+        upo_ht_sepchain_destroy(ht, 0);
+    }
 }
 
 void test_clear()
@@ -842,287 +979,6 @@ void test_size()
     upo_ht_sepchain_destroy(ht, 0);
 }
 
-void test_keys()
-{
-    int keys1[] = {0,1,2,3,4,5,6,7,8,9};
-    int keys2[] = {0,10,20,30,40,50,60,70,80,90};
-    int keys3[] = {0,1,2,3,4,10,11,12,13,14};
-    int values[] = {0,1,2,3,4,5,6,7,8,9};
-    size_t m = MAX( MAX(sizeof keys1/sizeof keys1[0], sizeof keys1/sizeof keys2[0]), sizeof keys1/sizeof keys3[0] );
-    size_t n = 0;
-    size_t i = 0;
-    upo_ht_sepchain_t ht;
-    upo_ht_key_list_t key_list;
-
-    /* HT: empty hash table */
-
-    ht = upo_ht_sepchain_create(UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list == NULL );
-
-    upo_ht_sepchain_destroy(ht, 0);
-
-    /* HT: no collision */
-
-    ht = upo_ht_sepchain_create(2*m*UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    n = sizeof keys1/sizeof keys1[0];
-
-    /* Insertion */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_insert(ht, &keys1[i], &values[i]);
-    }
-
-    /* Keys */
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list != NULL );
-    /* Check that each key is in the list */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_key_list_node_t* node = NULL;
-
-        for (node = key_list;
-             node != NULL && int_compare(&keys1[i], node->key) != 0;
-             node = node->next)
-        {
-            ; /* empty */
-        }
-        assert( node != NULL );
-    }
-    while (key_list != NULL)
-    {
-        upo_ht_key_list_t tmp = key_list;
-        key_list = key_list->next;
-        free(tmp);
-    }
-
-    /* Removal */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_delete(ht, &keys1[i], 0);
-    }
-
-    /* Keys */
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list == NULL );
-
-    upo_ht_sepchain_destroy(ht, 0);
-
-    /* HT: all collisions */
-
-    ht = upo_ht_sepchain_create(m*UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    n = sizeof keys2/sizeof keys2[0];
-    /* Insertion */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_insert(ht, &keys2[i], &values[i]);
-    }
-
-    /* Keys */
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list != NULL );
-    /* Check that each key is in the list */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_key_list_node_t* node = NULL;
-
-        for (node = key_list;
-             node != NULL && int_compare(&keys2[i], node->key) != 0;
-             node = node->next)
-        {
-            ; /* empty */
-        }
-        assert( node != NULL );
-    }
-    while (key_list != NULL)
-    {
-        upo_ht_key_list_t tmp = key_list;
-        key_list = key_list->next;
-        free(tmp);
-    }
-
-    /* Removal */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_delete(ht, &keys2[i], 0);
-    }
-
-    /* Keys */
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list == NULL );
-
-    upo_ht_sepchain_destroy(ht, 0);
-
-    /* HT: mix */
-
-    ht = upo_ht_sepchain_create(UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    n = sizeof keys3/sizeof keys3[0];
-    /* Insertion */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_put(ht, &keys3[i], &values[i]);
-    }
-
-    /* Keys */
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list != NULL );
-    /* Check that each key is in the list */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_key_list_node_t* node = NULL;
-
-        for (node = key_list;
-             node != NULL && int_compare(&keys3[i], node->key) != 0;
-             node = node->next)
-        {
-            ; /* empty */
-        }
-        assert( node != NULL );
-    }
-    while (key_list != NULL)
-    {
-        upo_ht_key_list_t tmp = key_list;
-        key_list = key_list->next;
-        free(tmp);
-    }
-
-    /* Removal */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_delete(ht, &keys3[i], 0);
-    }
-
-    /* Keys */
-    key_list = upo_ht_sepchain_keys(ht);
-    assert( key_list == NULL );
-
-    upo_ht_sepchain_destroy(ht, 0);
-}
-
-void test_traverse()
-{
-    int keys1[] = {0,1,2,3,4,5,6,7,8,9};
-    int keys2[] = {0,10,20,30,40,50,60,70,80,90};
-    int keys3[] = {0,1,2,3,4,10,11,12,13,14};
-    int values[] = {0,1,2,3,4,5,6,7,8,9};
-    size_t m = MAX( MAX(sizeof keys1/sizeof keys1[0], sizeof keys1/sizeof keys2[0]), sizeof keys1/sizeof keys3[0] );
-    size_t n = 0;
-    size_t i;
-    upo_ht_sepchain_t ht;
-    size_t key_counter = 0;
-
-    /* HT: empty hash table */
-
-    ht = upo_ht_sepchain_create(UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == 0 );
-
-    upo_ht_sepchain_destroy(ht, 0);
-
-    /* HT: no collision */
-
-    ht = upo_ht_sepchain_create(2*m*UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    n = sizeof keys1/sizeof keys1[0];
-    /* Insertion */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_insert(ht, &keys1[i], &values[i]);
-    }
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == n );
-
-    /* Removal */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_delete(ht, &keys1[i], 0);
-    }
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == 0 );
-
-    upo_ht_sepchain_destroy(ht, 0);
-
-    /* HT: all collisions */
-
-    ht = upo_ht_sepchain_create(m*UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    n = sizeof keys2/sizeof keys2[0];
-    /* Insertion */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_insert(ht, &keys2[i], &values[i]);
-    }
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == n );
-
-    /* Removal */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_delete(ht, &keys2[i], 0);
-    }
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == 0 );
-
-    upo_ht_sepchain_destroy(ht, 0);
-
-    /* HT: mix */
-
-    ht = upo_ht_sepchain_create(UPO_HT_SEPCHAIN_DEFAULT_CAPACITY, upo_ht_hash_int_div, int_compare);
-
-    assert( ht != NULL );
-
-    n = sizeof keys3/sizeof keys3[0];
-    /* Insertion */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_put(ht, &keys3[i], &values[i]);
-    }
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == n );
-
-    /* Removal */
-    for (i = 0; i < n; ++i)
-    {
-        upo_ht_sepchain_delete(ht, &keys3[i], 0);
-    }
-
-    key_counter = 0;
-    upo_ht_sepchain_traverse(ht, count_key_visit, &key_counter);
-    assert( key_counter == 0 );
-
-    upo_ht_sepchain_destroy(ht, 0);
-}
-
 void test_hash_funcs()
 {
     int int_keys[] = {0,1,2,3,4,5,6,7,8,9};
@@ -1244,7 +1100,7 @@ int main()
 
     printf("Test case 'insert/get/delete'... ");
     fflush(stdout);
-    test_insert();
+    test_insert_get_delete();
     printf("OK\n");
 
     printf("Test case 'clear'... ");
@@ -1260,16 +1116,6 @@ int main()
     printf("Test case 'size'... ");
     fflush(stdout);
     test_size();
-    printf("OK\n");
-
-    printf("Test case 'keys'... ");
-    fflush(stdout);
-    test_keys();
-    printf("OK\n");
-
-    printf("Test case 'traverse'... ");
-    fflush(stdout);
-    test_traverse();
     printf("OK\n");
 
     printf("Test case 'hash_funcs'... ");

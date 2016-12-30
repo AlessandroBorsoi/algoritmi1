@@ -49,17 +49,30 @@ int int_compare(const void* a, const void* b)
     return (*aa > *bb) - (*aa < *bb);
 }
 
-/*
+/* uncomment for debugging
 void int_key_value_print(void* key, void* value, void* info)
 {
-    FILE* stream = info;
+    FILE* stream = info ? info : stderr;
     int* ikey = key;
     int* ivalue = value;
 
-    if (ikey != NULL && ivalue != NULL && stream != NULL)
+    if (ikey != NULL)
     {
-        fprintf(stream, "Key: %d -> Value: %d\n", *ikey, *ivalue);
+        fprintf(stream, "Key: %d", *ikey);
     }
+    else
+    {
+        fprintf(stream, "Key: (nil)");
+    }
+    fprintf(stream, " -> ");
+    {
+        fprintf(stream, "Value: %d", *ivalue);
+    }
+    else
+    {
+        fprintf(stream, "Value: (nil)");
+    }
+    fputc(stream, '\n');
 }
 */
 
