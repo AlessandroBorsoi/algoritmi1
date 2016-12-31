@@ -194,7 +194,11 @@ void upo_ht_sepchain_delete(upo_ht_sepchain_t ht, const void* key, int destroy_d
         else
             p->next = n->next;
         if (destroy_data)
-            free(n);
+        {
+            free(n->key);
+            free(n->value);
+        }
+        free(n);
         ht->size -= 1;
     }
 }
