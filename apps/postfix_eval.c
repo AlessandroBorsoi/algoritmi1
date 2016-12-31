@@ -47,31 +47,34 @@ int isoperator(char op)
             op == '^');
 }
 
-long int eval(char op, long int op1, long int op2) 
+long int* eval(char op, long int op1, long int op2) 
 {
+    long int* tmpRes = (long int*)malloc(sizeof(long int));
     assert(isoperator(op));
     if (op == '+')  
-        return op1 + op2;
+        *tmpRes = op1 + op2;
     if (op == '-')
-        return op1 - op2;
+        *tmpRes = op1 - op2;
     if (op == '*')
-        return op1 * op2;
+        *tmpRes = op1 * op2;
     if (op == '/')
-        return op1 / op2;
+        *tmpRes = op1 / op2;
     if (op == '%')
-        return op1 % op2;
+        *tmpRes = op1 % op2;
     if (op == '^')
-        return pow(op1, op2);
-    return op1 + op2;
+        *tmpRes = pow(op1, op2);
+    return tmpRes;
 }
 
 int eval_postfix(const char* expr, long* res)
 {
     upo_stack_t stack;
     const char* data = expr;
+    void* tmpRes;
     long int* value;
-    long int tmpRes, op1, op2;
-    if (expr == NULL) return 0;
+    long int op1, op2;
+    if (expr == NULL) 
+        return 0;
     stack = upo_stack_create();
     while (*data != '\0') 
     {
@@ -84,15 +87,14 @@ int eval_postfix(const char* expr, long* res)
         else if (isoperator(*data))
         {
             op2 = *((long int*)upo_stack_top(stack));
-            upo_stack_pop(stack, 0);
+            upo_stack_pop(stack, 1);
             op1 = *((long int*)upo_stack_top(stack));
-            upo_stack_pop(stack, 0);
+            upo_stack_pop(stack, 1);
             tmpRes = eval(*data, op1, op2);
-            upo_stack_push(stack, &tmpRes);
+            upo_stack_push(stack, tmpRes);
         }
         else if (*data == ' ')
-        {
-        }
+        {}
         else
         {   
             fprintf(stderr, "Malformed expression: %c\n", *data);
@@ -100,9 +102,10 @@ int eval_postfix(const char* expr, long* res)
         }
         ++data;
     }
-    if (upo_stack_size(stack) == 1) {
+    if (upo_stack_size(stack) == 1) 
+    {
         *res = *((long int*)upo_stack_top(stack));
-        upo_stack_pop(stack, 0);
+        upo_stack_destroy(stack, 1);
         return 1;
     }
     else
