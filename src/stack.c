@@ -51,18 +51,19 @@ void upo_stack_destroy(upo_stack_t stack, int destroy_data)
 void upo_stack_push(upo_stack_t stack, void* data)
 {
     upo_stack_node_t* newNode;
-    if (stack == NULL)
-        stack = upo_stack_create();
-    newNode = malloc(sizeof(struct upo_stack_node_s));
-    if (newNode == NULL)
+    if (stack != NULL)
     {
-        fprintf(stderr, "Unable to push the element!\n");
-        abort();
+        newNode = malloc(sizeof(struct upo_stack_node_s));
+        if (newNode == NULL)
+        {
+            fprintf(stderr, "Unable to push the element!\n");
+            abort();
+        }
+        newNode->data = data;
+        newNode->next = stack->top;
+        stack->top = newNode;
+        stack->size += 1;
     }
-    newNode->data = data;
-    newNode->next = stack->top;
-    stack->top = newNode;
-    stack->size += 1;
 }
 
 void upo_stack_pop(upo_stack_t stack, int destroy_data)
