@@ -272,7 +272,11 @@ static upo_bst_node_t* upo_bst_delete_1c_impl(upo_bst_node_t* root, int destroy_
         root = root->right;
     }
     if (destroy_data)
-        free(n);
+    {
+        free(n->key);
+        free(n->value);
+    }
+    free(n);
     return root;
 }
 
