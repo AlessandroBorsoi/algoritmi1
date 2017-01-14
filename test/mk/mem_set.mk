@@ -1,0 +1,1 @@
+test_targets += test_mem_set
