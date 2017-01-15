@@ -183,3 +183,21 @@ static size_t partition(void* base, size_t lo, size_t hi, size_t size, upo_sort_
     upo_swap(upo_get_array_element(base, p, size), upo_get_array_element(base, j, size), size);
     return j;
 }
+
+void upo_bubble_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t i, j, swap;
+    for (i = 0; i < n - 1; ++i)
+    {
+        swap = 0;
+        for (j = 1; j < n - i; ++j)
+        {
+            if (cmp(upo_get_array_element(base, j - 1, size), upo_get_array_element(base, j, size)) > 0)
+            {
+                upo_swap(upo_get_array_element(base, j - 1, size), upo_get_array_element(base, j, size), size);
+                swap = 1;
+            }
+        }
+        if (swap == 0) break;
+    }
+}

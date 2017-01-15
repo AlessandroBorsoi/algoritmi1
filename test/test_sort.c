@@ -56,7 +56,7 @@ void test_sort_algorithm(void (*sort)(void*,size_t,size_t,upo_sort_comparator_t)
 static void test_insertion_sort();
 static void test_merge_sort();
 static void test_quick_sort();
-
+static void test_bubble_sort();
 
 int double_comparator(const void* a, const void* b)
 {
@@ -142,6 +142,11 @@ void test_quick_sort()
     test_sort_algorithm(upo_quick_sort);
 }
 
+void test_bubble_sort()
+{
+    test_sort_algorithm(upo_bubble_sort);
+}
+
 
 int main()
 {
@@ -158,6 +163,11 @@ int main()
     printf("Test case 'quick sort'... ");
     fflush(stdout);
     test_quick_sort();
+    printf("OK\n");
+
+    printf("Test case 'bubble sort'... ");
+    fflush(stdout);
+    test_bubble_sort();
     printf("OK\n");
 
     return 0;
