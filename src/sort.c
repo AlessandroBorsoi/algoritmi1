@@ -29,8 +29,13 @@
 
 void upo_insertion_sort(void* base, size_t n, size_t size, upo_sort_comparator_t cmp)
 {
+    upo_insertion_sort_range(base, 0, n - 1, size, cmp);
+}
+
+static void upo_insertion_sort_range(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
     size_t i, j;
-    for (i = 1; i < n; ++i)
+    for (i = lo + 1; i <= hi; ++i)
     {
         j = i;
         while (j > 0 && cmp(upo_get_array_element(base, j - 1, size), upo_get_array_element(base, j, size)) > 0)
@@ -200,4 +205,38 @@ void upo_bubble_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cm
         }
         if (swap == 0) break;
     }
+}
+
+void upo_quick_sort_median3_cutoff(void *base, size_t n, size_t size, upo_sort_comparator_t cmp)
+{
+    upo_quick_sort_median3_cutoff_rec(base, 0, n - 1, size, cmp);
+}
+
+static void upo_quick_sort_median3_cutoff_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t pivot;
+    if (lo >= hi) return;
+    if (hi - lo <= 10)
+    {
+        upo_insertion_sort_range(base, lo, hi, size, cmp);
+    }
+    else
+    {
+        pivot = partition_median3(base, lo, hi, size, cmp);
+        if (pivot > 0)
+            upo_quick_sort_rec(base, lo, pivot - 1, size, cmp);
+        upo_quick_sort_rec(base, pivot + 1, hi, size, cmp);    
+    }
+}
+
+static size_t partition_median3(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t mid = (lo + hi) / 2;
+    if (cmp(upo_get_array_element(base, lo, size), upo_get_array_element(base, mid, size)) > 0)
+        upo_swap(upo_get_array_element(base, lo, size), upo_get_array_element(base, mid, size), size);
+    if (cmp(upo_get_array_element(base, lo, size), upo_get_array_element(base, hi, size)) > 0)
+        upo_swap(upo_get_array_element(base, lo, size), upo_get_array_element(base, hi, size), size);
+    if (cmp(upo_get_array_element(base, mid, size), upo_get_array_element(base, hi, size)) > 0)
+        upo_swap(upo_get_array_element(base, mid, size), upo_get_array_element(base, hi, size), size);
+    return partition(base, lo + 1, hi - 1, size, cmp);
 }

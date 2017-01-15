@@ -49,6 +49,8 @@
  *
  */
 
+static void upo_insertion_sort_range(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
+
 static void upo_swap(void* v1, void* v2, size_t size);
 
 static void upo_merge_sort_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
@@ -64,5 +66,9 @@ static void* upo_get_array_element(void* array, size_t index, size_t size);
 static void upo_quick_sort_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
 
 static size_t partition(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
+
+static void upo_quick_sort_median3_cutoff_rec(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
+
+static size_t partition_median3(void* base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
 
 #endif /* UPO_SORT_PRIVATE_H */

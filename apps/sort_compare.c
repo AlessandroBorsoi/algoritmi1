@@ -41,7 +41,7 @@
 #define DEFAULT_OPT_RNG_SEED (unsigned int) time(NULL)
 #define DEFAULT_OPT_SORT_SPECIAL 0
 #define DEFAULT_OPT_VERBOSE 0
-#define NUM_SORTING_ALGORITHMS (size_t) 4
+#define NUM_SORTING_ALGORITHMS (size_t) 6
 
 
 /** \brief Defines the sorting algorithm category type as an enumerated type. */
@@ -50,7 +50,9 @@ typedef enum {
             insertion_sort_algorithm,
             merge_sort_algorithm,
             quick_sort_algorithm,
-            stdc_sort_algorithm
+            stdc_sort_algorithm,
+            bubble_sort_algorithm,
+            quick3_sort_algorithm
         } sorting_algorithm_t;
 
 /** \brief Defines the item type as a key-value pair type. */
@@ -162,6 +164,12 @@ double sort(sorting_algorithm_t alg, item_t* items, size_t n)
             break;
         case stdc_sort_algorithm:
             qsort(items, n, sizeof(item_t), item_comparator);
+            break;
+        case bubble_sort_algorithm:
+            upo_bubble_sort(items, n, sizeof(item_t), item_comparator);
+            break;
+        case quick3_sort_algorithm:
+            upo_quick_sort_median3_cutoff(items, n, sizeof(item_t), item_comparator);
             break;
         case unknown_sort_algorithm:
             return -1;
@@ -364,6 +372,14 @@ sorting_algorithm_t parse_sorting_algorithm(const char* str)
     {
         return stdc_sort_algorithm;
     }
+    if (!strcmp("bubble", str))
+    {
+        return bubble_sort_algorithm;
+    }
+    if (!strcmp("quick3", str))
+    {
+        return quick3_sort_algorithm;
+    }
 
     return unknown_sort_algorithm;
 }
@@ -385,6 +401,12 @@ void print_sorting_algorithm(FILE* fp, sorting_algorithm_t alg)
             break;
         case stdc_sort_algorithm:
             fprintf(fp, "Standard C sort");
+            break;
+        case bubble_sort_algorithm:
+            fprintf(fp, "Bubble sort");
+            break;
+        case quick3_sort_algorithm:
+            fprintf(fp, "Quick sort median 3 cutoff");
             break;
         case unknown_sort_algorithm:
             fprintf(fp, "Unknown sort");
@@ -420,6 +442,8 @@ void usage(const char* progname)
                     "            - merge: merge sort\n"
                     "            - quick: quick sort\n"
                     "            - stdc: standard C's sort\n"
+                    "            - bubble: bubble sort\n"
+                    "            - quick3: quick sort median 3 cutoff\n"
                     "            Repeats this option as many times as is the number of algorithms to use.\n");
     fprintf(stderr, "-h: Displays this message.\n");
     fprintf(stderr, "-n <value>: Specifies the size of the array to sort.\n"
