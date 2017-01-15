@@ -111,4 +111,14 @@ struct upo_bst_keys_range_s {
 
 static void upo_bst_is_bst_impl(upo_bst_node_t* root, const void* min_key, const void* max_key, upo_bst_comparator_t key_cmp, int* is_bst);
 
+struct upo_bst_rank_s {
+    upo_bst_comparator_t key_cmp;
+    const void* compare_key;
+    int rank_count;
+};
+
+typedef struct upo_bst_rank_s upo_bst_rank_t;
+
+void upo_bst_rank_impl(void* key, void* value, void* data_args);
+
 #endif /* UPO_BST_PRIVATE_H */

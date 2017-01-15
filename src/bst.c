@@ -495,3 +495,26 @@ upo_bst_comparator_t upo_bst_get_comparator(const upo_bst_t tree)
 
     return tree->key_cmp;
 }
+
+size_t upo_bst_rank(const upo_bst_t tree, const void* key, upo_bst_comparator_t key_cmp)
+{
+    int result;
+    upo_bst_rank_t* data = NULL;
+    if (tree == NULL)
+        return 0;
+    data = malloc(sizeof(upo_bst_rank_t));
+    data->key_cmp = key_cmp;
+    data->compare_key = key;
+    data->rank_count = 0;
+    upo_bst_traverse_in_order(tree, upo_bst_rank_impl, data);
+    result = data->rank_count;
+    free(data); 
+    return result;
+}
+
+void upo_bst_rank_impl(void* key, void* value, void* data_args)
+{
+    upo_bst_rank_t* data = data_args;
+    if (data->key_cmp(key, data->compare_key) < 0)
+        data->rank_count++;
+}

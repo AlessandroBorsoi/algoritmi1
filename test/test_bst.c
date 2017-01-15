@@ -49,7 +49,7 @@ static void test_size();
 static void test_height();
 static void test_traversal();
 static void test_null();
-
+static void test_rank();
 
 int int_compare(const void* a, const void* b)
 {
@@ -1015,9 +1015,41 @@ void test_null()
 
     assert( upo_bst_size(bst) == 0 );
 
+    assert( upo_bst_rank(bst, NULL, int_compare) == 0 );
+
     upo_bst_destroy(bst, 1);
 }
 
+void test_rank()
+{
+    int keys[] = {8,3,1,6,4,7,10,14,13};
+    size_t n = 0;
+    size_t i;
+    upo_bst_t bst;
+    int zero = 0;
+    int five = 5;
+    int twelve = 12;
+    int hundred = 100;
+
+    bst = upo_bst_create(int_compare);
+
+    n = sizeof keys/sizeof keys[0];
+    for (i = 0; i < n; ++i)
+    {
+        upo_bst_put(bst, &keys[i], &keys[i]);
+    }
+
+    assert( upo_bst_rank(bst, &keys[0], int_compare) == 5 );
+    assert( upo_bst_rank(bst, &keys[2], int_compare) == 0 );
+    assert( upo_bst_rank(bst, &keys[8], int_compare) == 7 );
+    assert( upo_bst_rank(bst, &keys[7], int_compare) == 8 );
+    assert( upo_bst_rank(bst, &zero, int_compare) == 0 );
+    assert( upo_bst_rank(bst, &five, int_compare) == 3 );
+    assert( upo_bst_rank(bst, &twelve, int_compare) == 7 );
+    assert( upo_bst_rank(bst, &hundred, int_compare) == 9 );
+
+    upo_bst_destroy(bst, 0);
+}
 
 int main()
 {
@@ -1064,6 +1096,11 @@ int main()
     printf("Test case 'null'... ");
     fflush(stdout);
     test_null();
+    printf("OK\n");
+
+    printf("Test case 'rank'... ");
+    fflush(stdout);
+    test_rank();
     printf("OK\n");
 
     return 0;
